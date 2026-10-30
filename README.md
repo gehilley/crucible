@@ -1,5 +1,27 @@
 # Crucible
 
+**An independent, verifiable record of research done with AI.**
+
+When a researcher works with an AI agent, Crucible records the work as it happens,
+and is built so that the record is held by a service that neither the researcher nor
+the AI's vendor controls. It aims to give science three things:
+
+- **Attribution in human–AI collaboration.** The record shows, event by event,
+  whether the researcher, the model or a tool acted, so a reader can see who did
+  what. It informs credit, but does not assign it: that judgment stays with the
+  reader.
+- **Attestation of the work actually done.** Each session is sealed into a hash chain
+  as it happens, and the service signs a timestamped receipt for each batch of it. So
+  anyone can check later that the record is the one that was sealed, unaltered.
+- **A record of science that includes what failed.** The record captures the
+  session as it went, not only what reached the paper: the analyses that worked, and
+  the ones tried and abandoned. Crucible is designed so that publishing a study
+  releases its whole record with it.
+
+Today Crucible records Claude Code sessions. This is its first phase: the record
+holds a digest of each piece of content, not the content itself, and the service is
+not yet independent of the person who runs it ("Status", below).
+
 ## Install in one command
 
 On Linux or macOS:
@@ -67,7 +89,7 @@ key and your registration, and leaves one sender running.
 
 ---
 
-## What Crucible is
+## How it works
 
 Crucible keeps an independent record of how a researcher works with an AI agent.
 A client on the researcher's machine records each Claude Code session as a hash
