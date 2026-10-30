@@ -399,16 +399,20 @@ def test_a_release_whose_wheel_does_not_match_its_manifest_is_not_served(tmp_pat
 
 @pytest.fixture
 def status_host():
-    """A stand-in for the status host: serves /service.json naming whichever key id it is given."""
-    state = {"key_id": None}
+    """A stand-in for the status host: serves /service.json in the shape scripts/publish_key.py
+    writes it (the key id at the top, and again inside the public key), naming whichever key id it
+    is given; ``inner`` names another inside the public key."""
+    state = {"key_id": None, "inner": None}
 
     class Host(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             if self.path != "/service.json" or state["key_id"] is None:
                 self.send_error(404)
                 return
-            body = json.dumps({"service": "test.service", "log_id": "log-ephemeral", "key_id": state["key_id"]},
-                              indent=2).encode()
+            public_key = {"alg": "EdDSA", "crv": "Ed25519", "key_id": state["inner"] or state["key_id"], "kty": "OKP",
+                          "label": "", "role": "service", "v": 0, "x": "AAAA"}
+            body = json.dumps({"key_id": state["key_id"], "log_id": "log-ephemeral", "public_key": public_key,
+                               "service": "test.service"}, indent=2, sort_keys=True).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
@@ -545,6 +549,19 @@ exec /usr/bin/curl "$@"
     r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
     assert r.returncode != 0 and "Nothing was changed" in r.stderr, r.stdout + r.stderr
     assert "astral.sh" not in asked.read_text()
+    assert list(home.iterdir()) == [] and not tools.exists()
+
+
+def test_a_published_document_naming_two_keys_changes_nothing(tmp_path, make_service, release_dir, status_host,
+                                                               service_key):
+    from crucible_service.api import Release
+
+    published, state = status_host
+    state["key_id"], state["inner"] = service_key.key_id, "sha256:" + "1" * 64
+    svc = make_service(Release(release_dir, published=published))
+    env, home, tools = _stranger_env(tmp_path)
+    r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
+    assert r.returncode != 0 and "cannot read the key published" in r.stderr, r.stdout + r.stderr
     assert list(home.iterdir()) == [] and not tools.exists()
 
 

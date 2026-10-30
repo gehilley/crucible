@@ -69,10 +69,14 @@ main() {
         done
         return 1
     }
-    key_id_of() {  # the one key id in a JSON document, or nothing
+    key_id_of() {  # the key id a JSON document names: every "key_id" in it well formed and the same, or nothing
         doc=$(cat)
-        [ "$(printf '%s' "$doc" | grep -o '"key_id"' | wc -l | tr -d ' ')" = 1 ] || return 0
-        printf '%s' "$doc" | sed -n 's/.*"key_id"[[:space:]]*:[[:space:]]*"\(sha256:[0-9a-f]\{64\}\)".*/\1/p' | head -n 1
+        named=$(printf '%s' "$doc" | grep -o '"key_id"' | wc -l | tr -d ' ')
+        ids=$(printf '%s' "$doc" | grep -o '"key_id"[[:space:]]*:[[:space:]]*"sha256:[0-9a-f]\{64\}"' \
+            | sed 's/.*"\(sha256:[0-9a-f]*\)"/\1/')
+        [ "$named" -ge 1 ] && [ "$(printf '%s\n' "$ids" | grep -c .)" = "$named" ] || return 0
+        [ "$(printf '%s\n' "$ids" | sort -u | wc -l | tr -d ' ')" = 1 ] || return 0
+        printf '%s\n' "$ids" | head -n 1
     }
 
     [ -n "$dry_run" ] && say "a dry run: checking, and changing nothing"
