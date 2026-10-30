@@ -85,7 +85,7 @@ the recipe that builds each release. [SPEC.md](SPEC.md) governs the project's
 scope.
 
 **Status (phase 0).** The service runs at **https://log.cruciblehub.org**, from
-release **0.1.1**. Its key and log id are published apart from it, at
+release **0.1.2**. Its key and log id are published apart from it, at
 **https://status.cruciblehub.org**. The service is run by the project's operator,
 so it is not yet independent of them.
 
@@ -106,7 +106,7 @@ What the record holds, in this phase:
   and the session goes on without that event. In this phase nothing in the record
   marks the gap, and the session still checks as intact.
 
-The commands below are for release 0.1.1. The service's own page,
+The commands below are for release 0.1.2. The service's own page,
 https://log.cruciblehub.org/, always gives the commands for the release it serves
 now. If its commands differ from these, use its commands.
 
@@ -138,12 +138,12 @@ env -u UV_CONFIG_FILE uv tool uninstall --no-config crucible-client 2>/dev/null 
 
 If no earlier copy is installed, this prints nothing and does nothing.
 
-### Step 2: Install the client, release 0.1.1
+### Step 2: Install the client, release 0.1.2
 
 This is one command; copy all of it:
 
 ```sh
-env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --python '>=3.11' --index https://log.cruciblehub.org/client/simple/ --index-strategy first-index --constraints https://log.cruciblehub.org/client/constraints.txt --with-executables-from crucible-verify crucible-client==0.1.1
+env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --python '>=3.11' --index https://log.cruciblehub.org/client/simple/ --index-strategy first-index --constraints https://log.cruciblehub.org/client/constraints.txt --with-executables-from crucible-verify crucible-client==0.1.2
 ```
 
 What it does:
