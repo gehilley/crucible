@@ -1,0 +1,9 @@
+{
+  "description": "Event 7's stored head was replaced.",
+  "expect": {
+    "at": 7,
+    "rule": "head",
+    "verdict": "broken"
+  },
+  "name": "bad-link"
+}

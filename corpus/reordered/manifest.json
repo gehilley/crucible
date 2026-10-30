@@ -1,0 +1,9 @@
+{
+  "description": "Events 6 and 7 were swapped and the heads recomputed.",
+  "expect": {
+    "at": 6,
+    "rule": "seq",
+    "verdict": "broken"
+  },
+  "name": "reordered"
+}

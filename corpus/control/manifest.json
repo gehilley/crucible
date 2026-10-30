@@ -1,0 +1,9 @@
+{
+  "description": "An intact twelve-event session.",
+  "expect": {
+    "at": null,
+    "rule": null,
+    "verdict": "intact"
+  },
+  "name": "control"
+}

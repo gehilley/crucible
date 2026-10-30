@@ -1,0 +1,216 @@
+{
+  "captured": "2026-10-24T23:26:16Z",
+  "claude_code_version": "2.1.281",
+  "comment": "Real Claude Code hook envelopes, captured by scripts/capture_hooks.py running `claude -p` headless. Paths are scrubbed to /WORKSPACE, /TRANSCRIPTS/<n>.jsonl and /HOME; nothing else in an envelope is edited. Each transcript keeps only what the hooks read from it: the model of each assistant record and the ids of its tool calls.",
+  "events": [
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "SessionStart",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "source": "startup",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "UserPromptSubmit",
+      "permission_mode": "acceptEdits",
+      "prompt": "Do exactly these steps and nothing else, then reply DONE. (1) Read the file missing.txt, which does not exist. (2) Use Bash to run exactly: exit 7 If a step fails, say so in one line and go on to the next.",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "tool_input": {
+        "file_path": "/WORKSPACE/missing.txt"
+      },
+      "tool_name": "Read",
+      "tool_use_id": "toolu_017NaxXbpf21TELLfFFg37VL",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 2,
+      "effort": {
+        "level": "medium"
+      },
+      "error": "File does not exist. Note: your current working directory is /WORKSPACE.",
+      "hook_event_name": "PostToolUseFailure",
+      "is_interrupt": false,
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "tool_input": {
+        "file_path": "/WORKSPACE/missing.txt"
+      },
+      "tool_name": "Read",
+      "tool_use_id": "toolu_017NaxXbpf21TELLfFFg37VL",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "file_path": "/WORKSPACE/missing.txt"
+          },
+          "tool_name": "Read",
+          "tool_response": "File does not exist. Note: your current working directory is /WORKSPACE.",
+          "tool_use_id": "toolu_017NaxXbpf21TELLfFFg37VL"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "tool_input": {
+        "command": "exit 7",
+        "description": "Exit with status 7"
+      },
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_019CkfHZULyse7QYR7AKt2q3",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 31,
+      "effort": {
+        "level": "medium"
+      },
+      "error": "Exit code 7",
+      "hook_event_name": "PostToolUseFailure",
+      "is_interrupt": false,
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "tool_input": {
+        "command": "exit 7",
+        "description": "Exit with status 7"
+      },
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_019CkfHZULyse7QYR7AKt2q3",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "command": "exit 7",
+            "description": "Exit with status 7"
+          },
+          "tool_name": "Bash",
+          "tool_response": "Exit code 7",
+          "tool_use_id": "toolu_019CkfHZULyse7QYR7AKt2q3"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "background_tasks": [],
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "Stop",
+      "last_assistant_message": "Step 2 failed: the command exited with code 7.\n\nDONE",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "session_crons": [],
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "stop_hook_active": false,
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "SessionEnd",
+      "prompt_id": "aa15e44c-ad39-407b-950b-ca12550d757e",
+      "reason": "other",
+      "session_id": "4185998f-ceb1-47d6-a926-5d328aad4b88",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    }
+  ],
+  "files_after": {
+    "sample.txt": "alpha\n"
+  },
+  "files_before": {
+    "sample.txt": "alpha\n"
+  },
+  "note": "",
+  "prompt": "Do exactly these steps and nothing else, then reply DONE. (1) Read the file missing.txt, which does not exist. (2) Use Bash to run exactly: exit 7 If a step fails, say so in one line and go on to the next.",
+  "scenario": "tool-failure",
+  "transcripts": {
+    "/TRANSCRIPTS/0.jsonl": [
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_017NaxXbpf21TELLfFFg37VL",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_019CkfHZULyse7QYR7AKt2q3",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      }
+    ]
+  }
+}

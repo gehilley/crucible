@@ -1,0 +1,9 @@
+{
+  "description": "Event 8's timestamp equals event 7's; heads are consistent.",
+  "expect": {
+    "at": 8,
+    "rule": "ts",
+    "verdict": "broken"
+  },
+  "name": "ts-not-increasing"
+}

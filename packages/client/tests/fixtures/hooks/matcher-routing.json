@@ -1,0 +1,70 @@
+{
+  "captured": "2026-10-24T22:18:11Z",
+  "claude_code_version": "2.1.281",
+  "comment": "Which PreToolUse matcher fired for which tool, observed by scripts/capture_matcher_routing.py running `claude -p` headless.",
+  "matchers": {
+    "alternation": "Bash|Edit|Write|Read",
+    "dot-star": ".*",
+    "empty": "",
+    "star": "*"
+  },
+  "observations": [
+    {
+      "fired": [
+        "alternation",
+        "dot-star",
+        "empty",
+        "star"
+      ],
+      "tool": "Bash"
+    },
+    {
+      "fired": [
+        "dot-star",
+        "empty",
+        "star"
+      ],
+      "tool": "Glob"
+    },
+    {
+      "fired": [
+        "dot-star",
+        "empty",
+        "star"
+      ],
+      "tool": "Grep"
+    },
+    {
+      "fired": [
+        "alternation",
+        "dot-star",
+        "empty",
+        "star"
+      ],
+      "tool": "Read"
+    },
+    {
+      "fired": [
+        "dot-star",
+        "empty",
+        "star"
+      ],
+      "tool": "ToolSearch"
+    },
+    {
+      "fired": [
+        "dot-star",
+        "empty",
+        "star"
+      ],
+      "tool": "mcp__probe__probe_ping"
+    }
+  ],
+  "tools_called": [
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read",
+    "mcp__probe__probe_ping"
+  ]
+}

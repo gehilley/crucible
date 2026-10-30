@@ -1,0 +1,9 @@
+{
+  "description": "Event 5's content digest was changed after the fact; heads were not.",
+  "expect": {
+    "at": 5,
+    "rule": "head",
+    "verdict": "broken"
+  },
+  "name": "altered-event"
+}

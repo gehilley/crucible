@@ -1,0 +1,423 @@
+{
+  "captured": "2026-10-24T23:25:59Z",
+  "claude_code_version": "2.1.281",
+  "comment": "Real Claude Code hook envelopes, captured by scripts/capture_hooks.py running `claude -p` headless. Paths are scrubbed to /WORKSPACE, /TRANSCRIPTS/<n>.jsonl and /HOME; nothing else in an envelope is edited. Each transcript keeps only what the hooks read from it: the model of each assistant record and the ids of its tool calls.",
+  "events": [
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "SessionStart",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "source": "startup",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "UserPromptSubmit",
+      "permission_mode": "acceptEdits",
+      "prompt": "Do exactly these steps and nothing else, then reply DONE. (1) Read notes.txt. (2) Edit notes.txt, replacing the text 'omega' with 'beta' (it is not there, so the edit will fail; do not retry). (3) Read analysis.ipynb. (4) Use NotebookEdit to replace the source of its first cell with print(2).",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "file_path": "/WORKSPACE/notes.txt"
+      },
+      "tool_name": "Read",
+      "tool_use_id": "toolu_01Q3utMr2SYJo8sG2DeuPtY2",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 3,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "file_path": "/WORKSPACE/notes.txt"
+      },
+      "tool_name": "Read",
+      "tool_response": {
+        "file": {
+          "content": "alpha\n",
+          "filePath": "/WORKSPACE/notes.txt",
+          "numLines": 2,
+          "startLine": 1,
+          "totalLines": 2
+        },
+        "type": "text"
+      },
+      "tool_use_id": "toolu_01Q3utMr2SYJo8sG2DeuPtY2",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "file_path": "/WORKSPACE/notes.txt"
+          },
+          "tool_name": "Read",
+          "tool_response": "1\talpha\n2\t",
+          "tool_use_id": "toolu_01Q3utMr2SYJo8sG2DeuPtY2"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "file_path": "/WORKSPACE/notes.txt",
+            "new_string": "beta",
+            "old_string": "omega",
+            "replace_all": false
+          },
+          "tool_name": "Edit",
+          "tool_response": "<tool_use_error>String to replace not found in file.\nString: omega</tool_use_error>",
+          "tool_use_id": "toolu_01FbytnpgxaoNwUYmW2Pm7CE"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "file_path": "/WORKSPACE/analysis.ipynb"
+      },
+      "tool_name": "Read",
+      "tool_use_id": "toolu_01WBYhc82nUhziofh3Sobgox",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 1,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "file_path": "/WORKSPACE/analysis.ipynb"
+      },
+      "tool_name": "Read",
+      "tool_response": {
+        "file": {
+          "cells": [
+            {
+              "cellType": "code",
+              "cell_id": "c1",
+              "language": "python",
+              "source": "print(1)"
+            }
+          ],
+          "filePath": "/WORKSPACE/analysis.ipynb"
+        },
+        "type": "notebook"
+      },
+      "tool_use_id": "toolu_01WBYhc82nUhziofh3Sobgox",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "max_results": 1,
+        "query": "select:NotebookEdit"
+      },
+      "tool_name": "ToolSearch",
+      "tool_use_id": "toolu_01NE3bDZjZCmQbrTkWpo7d1m",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 1,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "max_results": 1,
+        "query": "select:NotebookEdit"
+      },
+      "tool_name": "ToolSearch",
+      "tool_response": {
+        "matches": [
+          "NotebookEdit"
+        ],
+        "query": "select:NotebookEdit",
+        "total_deferred_tools": 14
+      },
+      "tool_use_id": "toolu_01NE3bDZjZCmQbrTkWpo7d1m",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "file_path": "/WORKSPACE/analysis.ipynb"
+          },
+          "tool_name": "Read",
+          "tool_response": [
+            {
+              "text": "<cell id=\"c1\">print(1)</cell id=\"c1\">",
+              "type": "text"
+            }
+          ],
+          "tool_use_id": "toolu_01WBYhc82nUhziofh3Sobgox"
+        },
+        {
+          "tool_input": {
+            "max_results": 1,
+            "query": "select:NotebookEdit"
+          },
+          "tool_name": "ToolSearch",
+          "tool_response": [
+            {
+              "tool_name": "NotebookEdit",
+              "type": "tool_reference"
+            }
+          ],
+          "tool_use_id": "toolu_01NE3bDZjZCmQbrTkWpo7d1m"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "cell_id": "c1",
+        "new_source": "print(2)",
+        "notebook_path": "/WORKSPACE/analysis.ipynb"
+      },
+      "tool_name": "NotebookEdit",
+      "tool_use_id": "toolu_015GZ8Au2yTSfs7K7YWunMr6",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 54,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_input": {
+        "cell_id": "c1",
+        "new_source": "print(2)",
+        "notebook_path": "/WORKSPACE/analysis.ipynb"
+      },
+      "tool_name": "NotebookEdit",
+      "tool_response": {
+        "cell_id": "c1",
+        "cell_type": "code",
+        "edit_mode": "replace",
+        "error": "",
+        "language": "python",
+        "new_source": "print(2)",
+        "notebook_path": "/WORKSPACE/analysis.ipynb",
+        "old_source": "print(1)",
+        "original_file": "{\n \"cells\": [\n  {\n   \"cell_type\": \"code\",\n   \"execution_count\": null,\n   \"id\": \"c1\",\n   \"metadata\": {},\n   \"outputs\": [],\n   \"source\": [\n    \"print(1)\"\n   ]\n  }\n ],\n \"metadata\": {},\n \"nbformat\": 4,\n \"nbformat_minor\": 5\n}\n",
+        "updated_file": "{\n \"cells\": [\n  {\n   \"cell_type\": \"code\",\n   \"execution_count\": null,\n   \"id\": \"c1\",\n   \"metadata\": {},\n   \"outputs\": [],\n   \"source\": \"print(2)\"\n  }\n ],\n \"metadata\": {},\n \"nbformat\": 4,\n \"nbformat_minor\": 5\n}"
+      },
+      "tool_use_id": "toolu_015GZ8Au2yTSfs7K7YWunMr6",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "cell_id": "c1",
+            "new_source": "print(2)",
+            "notebook_path": "/WORKSPACE/analysis.ipynb"
+          },
+          "tool_name": "NotebookEdit",
+          "tool_response": "Updated cell c1 with print(2)",
+          "tool_use_id": "toolu_015GZ8Au2yTSfs7K7YWunMr6"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "background_tasks": [],
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "Stop",
+      "last_assistant_message": "DONE. As you expected, the edit to `notebook.txt` failed because 'omega' isn't in it, so I didn't retry and that file is unchanged. The first cell of `analysis.ipynb` is now `print(2)`.",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "session_crons": [],
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "stop_hook_active": false,
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "SessionEnd",
+      "prompt_id": "b720fd65-3680-43c5-afd0-f4c04b866255",
+      "reason": "other",
+      "session_id": "bbf98131-79f8-4859-a790-41785fa85159",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    }
+  ],
+  "files_after": {
+    "analysis.ipynb": "{\n \"cells\": [\n  {\n   \"cell_type\": \"code\",\n   \"execution_count\": null,\n   \"id\": \"c1\",\n   \"metadata\": {},\n   \"outputs\": [],\n   \"source\": \"print(2)\"\n  }\n ],\n \"metadata\": {},\n \"nbformat\": 4,\n \"nbformat_minor\": 5\n}",
+    "notes.txt": "alpha\n"
+  },
+  "files_before": {
+    "analysis.ipynb": "{\n \"cells\": [\n  {\n   \"cell_type\": \"code\",\n   \"execution_count\": null,\n   \"id\": \"c1\",\n   \"metadata\": {},\n   \"outputs\": [],\n   \"source\": [\n    \"print(1)\"\n   ]\n  }\n ],\n \"metadata\": {},\n \"nbformat\": 4,\n \"nbformat_minor\": 5\n}\n",
+    "notes.txt": "alpha\n"
+  },
+  "note": "On 2.1.281 an Edit whose old_string is not in the file is refused by the client's input validation before PreToolUse: no hook fires for it at all, so the record shows no Edit. Phase 1 records such calls as gaps.",
+  "prompt": "Do exactly these steps and nothing else, then reply DONE. (1) Read notes.txt. (2) Edit notes.txt, replacing the text 'omega' with 'beta' (it is not there, so the edit will fail; do not retry). (3) Read analysis.ipynb. (4) Use NotebookEdit to replace the source of its first cell with print(2).",
+  "scenario": "edit-failure-notebook",
+  "transcripts": {
+    "/TRANSCRIPTS/0.jsonl": [
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_01Q3utMr2SYJo8sG2DeuPtY2",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_01FbytnpgxaoNwUYmW2Pm7CE",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_01WBYhc82nUhziofh3Sobgox",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_01NE3bDZjZCmQbrTkWpo7d1m",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_015GZ8Au2yTSfs7K7YWunMr6",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      }
+    ]
+  }
+}

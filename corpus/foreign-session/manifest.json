@@ -1,0 +1,9 @@
+{
+  "description": "Event 10 names another session; heads are consistent.",
+  "expect": {
+    "at": 10,
+    "rule": "session",
+    "verdict": "broken"
+  },
+  "name": "foreign-session"
+}

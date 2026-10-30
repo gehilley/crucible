@@ -1,0 +1,9 @@
+{
+  "description": "Event 4 was removed and every later head recomputed.",
+  "expect": {
+    "at": 4,
+    "rule": "seq",
+    "verdict": "broken"
+  },
+  "name": "missing-seq"
+}

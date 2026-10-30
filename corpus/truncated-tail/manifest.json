@@ -1,0 +1,9 @@
+{
+  "description": "Events 9-11 were cut off; the header still declares twelve.",
+  "expect": {
+    "at": 9,
+    "rule": "truncated",
+    "verdict": "broken"
+  },
+  "name": "truncated-tail"
+}

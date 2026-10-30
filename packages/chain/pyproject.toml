@@ -1,0 +1,16 @@
+[project]
+name = "crucible-chain"
+version = "0.0.0"
+description = "Crucible record: SPEC.md §4 events, the per-session hash chain, the client's local store"
+requires-python = ">=3.11"
+dependencies = ["crucible-core"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/crucible_chain"]
+
+[tool.uv.sources]
+crucible-core = { workspace = true }

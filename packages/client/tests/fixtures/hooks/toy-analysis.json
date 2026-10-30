@@ -1,0 +1,396 @@
+{
+  "captured": "2026-10-24T23:26:24Z",
+  "claude_code_version": "2.1.281",
+  "comment": "Real Claude Code hook envelopes, captured by scripts/capture_hooks.py running `claude -p` headless. Paths are scrubbed to /WORKSPACE, /TRANSCRIPTS/<n>.jsonl and /HOME; nothing else in an envelope is edited. Each transcript keeps only what the hooks read from it: the model of each assistant record and the ids of its tool calls.",
+  "events": [
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "SessionStart",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "source": "startup",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "file_path": "/WORKSPACE/CLAUDE.md",
+      "hook_event_name": "InstructionsLoaded",
+      "load_reason": "session_start",
+      "memory_type": "Project",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "UserPromptSubmit",
+      "permission_mode": "acceptEdits",
+      "prompt": "Do exactly these steps and nothing else, then reply DONE. (1) Read the file sample.txt. (2) Use Bash to run: wc -l sample.txt (3) Write the line count, a single number, to count.txt. (4) Edit count.txt to append the word ' lines' after the number.",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "file_path": "/WORKSPACE/sample.txt"
+      },
+      "tool_name": "Read",
+      "tool_use_id": "toolu_01DX3NhFAdsd4h8ZK6Rqo4zF",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 4,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "file_path": "/WORKSPACE/sample.txt"
+      },
+      "tool_name": "Read",
+      "tool_response": {
+        "file": {
+          "content": "alpha\nbeta\ngamma\n",
+          "filePath": "/WORKSPACE/sample.txt",
+          "numLines": 4,
+          "startLine": 1,
+          "totalLines": 4
+        },
+        "type": "text"
+      },
+      "tool_use_id": "toolu_01DX3NhFAdsd4h8ZK6Rqo4zF",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "command": "wc -l /WORKSPACE/sample.txt",
+        "description": "Count lines in sample.txt"
+      },
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_013nz7VQret4syLgcd4uQg43",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 30,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "command": "wc -l /WORKSPACE/sample.txt",
+        "description": "Count lines in sample.txt"
+      },
+      "tool_name": "Bash",
+      "tool_response": {
+        "interrupted": false,
+        "isImage": false,
+        "noOutputExpected": false,
+        "stderr": "",
+        "stdout": "3 /WORKSPACE/sample.txt"
+      },
+      "tool_use_id": "toolu_013nz7VQret4syLgcd4uQg43",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "file_path": "/WORKSPACE/sample.txt"
+          },
+          "tool_name": "Read",
+          "tool_response": "1\talpha\n2\tbeta\n3\tgamma\n4\t",
+          "tool_use_id": "toolu_01DX3NhFAdsd4h8ZK6Rqo4zF"
+        },
+        {
+          "tool_input": {
+            "command": "wc -l /WORKSPACE/sample.txt",
+            "description": "Count lines in sample.txt"
+          },
+          "tool_name": "Bash",
+          "tool_response": "3 /WORKSPACE/sample.txt",
+          "tool_use_id": "toolu_013nz7VQret4syLgcd4uQg43"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "content": "3",
+        "file_path": "/WORKSPACE/count.txt"
+      },
+      "tool_name": "Write",
+      "tool_use_id": "toolu_011U9twbhUgisgUjxqkTwy9Y",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 6,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "content": "3",
+        "file_path": "/WORKSPACE/count.txt"
+      },
+      "tool_name": "Write",
+      "tool_response": {
+        "content": "3",
+        "filePath": "/WORKSPACE/count.txt",
+        "originalFile": null,
+        "structuredPatch": [],
+        "type": "create",
+        "userModified": false
+      },
+      "tool_use_id": "toolu_011U9twbhUgisgUjxqkTwy9Y",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "content": "3",
+            "file_path": "/WORKSPACE/count.txt"
+          },
+          "tool_name": "Write",
+          "tool_response": "File created successfully at: /WORKSPACE/count.txt (file state is current in your context \u2014 no need to Read it back)",
+          "tool_use_id": "toolu_011U9twbhUgisgUjxqkTwy9Y"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PreToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "file_path": "/WORKSPACE/count.txt",
+        "new_string": "3 lines",
+        "old_string": "3",
+        "replace_all": false
+      },
+      "tool_name": "Edit",
+      "tool_use_id": "toolu_01Wzc9qV62f2opoWK6ZL7p3V",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "duration_ms": 7,
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolUse",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_input": {
+        "file_path": "/WORKSPACE/count.txt",
+        "new_string": "3 lines",
+        "old_string": "3",
+        "replace_all": false
+      },
+      "tool_name": "Edit",
+      "tool_response": {
+        "filePath": "/WORKSPACE/count.txt",
+        "newString": "3 lines",
+        "oldString": "3",
+        "originalFile": "3",
+        "replaceAll": false,
+        "structuredPatch": [
+          {
+            "lines": [
+              "-3",
+              "\\ No newline at end of file",
+              "+3 lines",
+              "\\ No newline at end of file"
+            ],
+            "newLines": 1,
+            "newStart": 1,
+            "oldLines": 1,
+            "oldStart": 1
+          }
+        ],
+        "userModified": false
+      },
+      "tool_use_id": "toolu_01Wzc9qV62f2opoWK6ZL7p3V",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "PostToolBatch",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "tool_calls": [
+        {
+          "tool_input": {
+            "file_path": "/WORKSPACE/count.txt",
+            "new_string": "3 lines",
+            "old_string": "3",
+            "replace_all": false
+          },
+          "tool_name": "Edit",
+          "tool_response": "The file /WORKSPACE/count.txt has been updated successfully. (file state is current in your context \u2014 no need to Read it back)",
+          "tool_use_id": "toolu_01Wzc9qV62f2opoWK6ZL7p3V"
+        }
+      ],
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "background_tasks": [],
+      "cwd": "/WORKSPACE",
+      "effort": {
+        "level": "medium"
+      },
+      "hook_event_name": "Stop",
+      "last_assistant_message": "DONE. `wc -l` counted 3 lines in sample.txt, and count.txt now contains `3 lines`.",
+      "permission_mode": "acceptEdits",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "session_crons": [],
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "stop_hook_active": false,
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    },
+    {
+      "cwd": "/WORKSPACE",
+      "hook_event_name": "SessionEnd",
+      "prompt_id": "50b5a8ff-839b-4801-b1cd-dd930657c78c",
+      "reason": "other",
+      "session_id": "087cb937-a5d3-48cf-9e9a-99def4c6e81b",
+      "transcript_path": "/TRANSCRIPTS/0.jsonl"
+    }
+  ],
+  "files_after": {
+    "CLAUDE.md": "# toy analysis\n\nCount the lines in sample.txt. Be brief.\n",
+    "count.txt": "3 lines",
+    "sample.txt": "alpha\nbeta\ngamma\n"
+  },
+  "files_before": {
+    "CLAUDE.md": "# toy analysis\n\nCount the lines in sample.txt. Be brief.\n",
+    "sample.txt": "alpha\nbeta\ngamma\n"
+  },
+  "note": "",
+  "prompt": "Do exactly these steps and nothing else, then reply DONE. (1) Read the file sample.txt. (2) Use Bash to run: wc -l sample.txt (3) Write the line count, a single number, to count.txt. (4) Edit count.txt to append the word ' lines' after the number.",
+  "scenario": "toy-analysis",
+  "transcripts": {
+    "/TRANSCRIPTS/0.jsonl": [
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_01DX3NhFAdsd4h8ZK6Rqo4zF",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_013nz7VQret4syLgcd4uQg43",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_011U9twbhUgisgUjxqkTwy9Y",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [
+            {
+              "id": "toolu_01Wzc9qV62f2opoWK6ZL7p3V",
+              "type": "tool_use"
+            }
+          ],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      },
+      {
+        "message": {
+          "content": [],
+          "model": "claude-opus-5-5"
+        },
+        "type": "assistant",
+        "version": "2.1.281"
+      }
+    ]
+  }
+}

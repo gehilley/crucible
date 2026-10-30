@@ -1,0 +1,9 @@
+{
+  "description": "Event 3's type is not in \u00a74's vocabulary; heads are consistent.",
+  "expect": {
+    "at": 3,
+    "rule": "event.type",
+    "verdict": "broken"
+  },
+  "name": "type-outside-vocabulary"
+}

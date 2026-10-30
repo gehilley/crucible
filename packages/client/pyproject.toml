@@ -1,0 +1,24 @@
+[project]
+name = "crucible-client"
+version = "0.0.0"
+description = "The Crucible client (SPEC.md §3): Claude Code hooks that record §4 events into the local chain"
+requires-python = ">=3.11"
+dependencies = ["crucible-core", "crucible-chain", "crucible-verify"]
+
+[project.scripts]
+crucible-hook = "crucible_client.hooks:main"
+crucible-send = "crucible_client.sender:main"
+crucible = "crucible_client.cli:main"
+crucible-liveness = "crucible_client.liveness:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/crucible_client"]
+
+[tool.uv.sources]
+crucible-core = { workspace = true }
+crucible-chain = { workspace = true }
+crucible-verify = { workspace = true }

@@ -1,0 +1,9 @@
+{
+  "description": "Every event and head is intact; the header's declared head was replaced.",
+  "expect": {
+    "at": 11,
+    "rule": "declared-head",
+    "verdict": "broken"
+  },
+  "name": "header-head-replaced"
+}
