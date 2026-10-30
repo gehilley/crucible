@@ -546,10 +546,15 @@ exec /usr/bin/curl "$@"
 """)
     (shim / "curl").chmod(0o755)
     env["PATH"] = f"{shim}:{env['PATH']}"
-    r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
-    assert r.returncode != 0 and "Nothing was changed" in r.stderr, r.stdout + r.stderr
-    assert "astral.sh" not in asked.read_text()
-    assert list(home.iterdir()) == [] and not tools.exists()
+    try:
+        r = subprocess.run(    ["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
+        assert r.returncode != 0 and "Nothing was changed" in r.stderr, r.stdout + r.stderr
+        assert "astral.sh" not in asked.read_text()
+        assert list(home.iterdir()) == [] and not tools.exists()
+    finally:
+        from crucible_client import daemon
+
+        daemon.stop_spawned(home / ".local" / "state" / "crucible")
 
 
 def test_a_published_document_naming_two_keys_changes_nothing(tmp_path, make_service, release_dir, status_host,
@@ -560,9 +565,14 @@ def test_a_published_document_naming_two_keys_changes_nothing(tmp_path, make_ser
     state["key_id"], state["inner"] = service_key.key_id, "sha256:" + "1" * 64
     svc = make_service(Release(release_dir, published=published))
     env, home, tools = _stranger_env(tmp_path)
-    r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
-    assert r.returncode != 0 and "cannot read the key published" in r.stderr, r.stdout + r.stderr
-    assert list(home.iterdir()) == [] and not tools.exists()
+    try:
+        r = subprocess.run(    ["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
+        assert r.returncode != 0 and "cannot read the key published" in r.stderr, r.stdout + r.stderr
+        assert list(home.iterdir()) == [] and not tools.exists()
+    finally:
+        from crucible_client import daemon
+
+        daemon.stop_spawned(home / ".local" / "state" / "crucible")
 
 
 def test_a_dry_run_checks_and_changes_nothing(tmp_path, make_service, release_dir, status_host, service_key):
@@ -590,3 +600,32 @@ def test_a_release_without_an_installer_serves_none(tmp_path, make_service, rele
     with pytest.raises(urllib.error.HTTPError) as err:
         _get(svc.url + "/install.sh")
     assert err.value.code == 404
+
+
+KEY = "sha256:" + "ab" * 32
+KEY_DOCUMENTS = {  # document -> the key id key_id_of reads from it, or "" for none
+    json.dumps({"key_id": KEY, "public_key": {"key_id": KEY, "x": "AAAA"}}, indent=2): KEY,  # service.json's shape
+    json.dumps({"v": 0, "role": "service", "key_id": KEY, "x": "AAAA"}): KEY,  # /v2/pubkey's shape
+    json.dumps({"key_id": KEY, "public_key": {"key_id": "sha256:" + "cd" * 32}}): "",  # two different keys
+    json.dumps({"key_id": KEY, "public_key": {"key_id": None}}): "",
+    json.dumps({"key_id": KEY, "public_key": {"key_id": 5}}): "",
+    json.dumps({"key_id": KEY, "public_key": {"key_id": "SHA256:" + "AB" * 32}}): "",
+    json.dumps({"key_id": KEY, "public_key": {"key_id": "sha256:" + "a" * 63}}): "",
+    json.dumps({"service": "x"}): "",
+    "": "",
+}
+
+
+@pytest.mark.parametrize("shell", ["dash", "bash", "busybox"])
+def test_the_installer_reads_a_key_id_only_when_every_one_in_the_document_is_well_formed_and_the_same(shell):
+    command = [shell, "sh"] if shell == "busybox" else [shell]
+    if not shutil.which(command[0]):
+        pytest.skip(f"no {shell} here")
+    script = (ROOT / "deploy" / "install.sh").read_text()
+    function = script[script.index("    key_id_of() {"):]
+    function = function[:function.index("\n    }\n") + len("\n    }\n")]
+    for document, expected in KEY_DOCUMENTS.items():
+        got = subprocess.run(command + ["-c", function + "key_id_of"], input=document, capture_output=True, text=True,
+                             timeout=30, env={"PATH": "/usr/bin:/bin", "GREP_OPTIONS": "--color=always"})
+        assert got.stdout.strip() == expected, (shell, document, got.stdout, got.stderr)
+

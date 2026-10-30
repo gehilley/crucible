@@ -28,6 +28,7 @@
 
 main() {
     set -eu
+    unset GREP_OPTIONS  # an older grep reads it; --color=always would wrap what key_id_of reads
 
     service_url='{service_url}'
     version='{version}'
@@ -73,7 +74,7 @@ main() {
         doc=$(cat)
         named=$(printf '%s' "$doc" | grep -o '"key_id"' | wc -l | tr -d ' ')
         ids=$(printf '%s' "$doc" | grep -o '"key_id"[[:space:]]*:[[:space:]]*"sha256:[0-9a-f]\{64\}"' \
-            | sed 's/.*"\(sha256:[0-9a-f]*\)"/\1/')
+            | sed 's/.*"\(sha256:[0-9a-f]\{64\}\)".*/\1/')
         [ "$named" -ge 1 ] && [ "$(printf '%s\n' "$ids" | grep -c .)" = "$named" ] || return 0
         [ "$(printf '%s\n' "$ids" | sort -u | wc -l | tr -d ' ')" = 1 ] || return 0
         printf '%s\n' "$ids" | head -n 1
