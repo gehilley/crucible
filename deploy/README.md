@@ -30,11 +30,17 @@ One command:
 curl -fsSL {service_url}/install.sh | sh
 ```
 
-Or, with wget: `wget -qO- {service_url}/install.sh | sh`.
+Or, with wget: `wget -nv -O- {service_url}/install.sh | sh`.
 
 It checks that this service's key is the one published apart from it, at
-[{published}/service.json]({published}/service.json), and installs nothing if it is
-not. Then it runs the three commands below. To see what it would do without changing
+[{published}/service.json]({published}/service.json), and changes nothing if it is
+not. It uses your uv if it is 0.8.5 or newer, or installs a private copy that touches
+no start-up file. Then it runs the three commands below, with `crucible install` told
+to pin the key it checked; it tries the new client in a scratch directory before
+replacing one you have. It adds `~/.local/bin` to your shell's start-up files if it
+is not on your PATH. The check proves that this service and its status host agree on
+the key; it does not protect you from a dishonest service, which also serves the
+installer and the client. To see what it would do without changing
 anything: `curl -fsSL {service_url}/install.sh | CRUCIBLE_INSTALL_DRY_RUN=1 sh`. To
 read it before running it: `curl -fsSL {service_url}/install.sh -o install.sh`, then
 `sh install.sh`.
@@ -43,7 +49,7 @@ To run the three commands yourself instead (they need uv 0.8.5 or newer):
 
 ```sh
 env -u UV_CONFIG_FILE uv tool uninstall --no-config crucible-client 2>/dev/null || true
-env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --index {service_url}/client/simple/ --index-strategy first-index --constraints {service_url}/client/constraints.txt --with-executables-from crucible-verify crucible-client=={version}
+env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --python '>=3.11' --index {service_url}/client/simple/ --index-strategy first-index --constraints {service_url}/client/constraints.txt --with-executables-from crucible-verify crucible-client=={version}
 env -u PYTHONPATH -u PYTHONHOME crucible install {service_url}
 ```
 

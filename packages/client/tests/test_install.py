@@ -148,6 +148,19 @@ def test_a_service_presenting_another_key_is_refused_not_re_pinned(fresh, epheme
     assert r.returncode == 2 and "not the pinned" in r.stderr
 
 
+def test_an_expected_key_the_service_does_not_present_is_refused_before_anything_is_written(fresh, ephemeral_service,
+                                                                                           service_key):
+    home, env = fresh
+    r = crucible(env, "install", ephemeral_service.url, "--expect-key", "sha256:" + "0" * 64)
+    assert r.returncode == 2 and "not the expected" in r.stderr and "nothing was installed" in r.stderr
+    assert not client_home(home).exists() and not (home / ".claude").exists()
+    bad = crucible(env, "install", ephemeral_service.url, "--expect-key", "not-a-key")
+    assert bad.returncode == 2 and "is not a key id" in bad.stderr
+    ok = crucible(env, "install", ephemeral_service.url, "--expect-key", service_key.key_id)
+    assert ok.returncode == 0, ok.stderr
+    assert f"service key {service_key.key_id}" in ok.stdout
+
+
 def test_the_users_own_settings_and_hooks_are_kept(fresh, ephemeral_service):
     home, env = fresh
     (home / ".claude").mkdir()

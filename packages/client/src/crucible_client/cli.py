@@ -11,6 +11,10 @@ client that was not told where to send sends nowhere. It then:
 4. writes the Claude Code hooks into the user's ``~/.claude/settings.json``;
 5. starts the background sender (`daemon`).
 
+``--expect-key <key_id>`` refuses, before anything is written, unless the service
+presents that key: for example the key its status host publishes, which the
+one-command installer passes.
+
 Running it again changes nothing that is already right: the same key, the same
 registration (the service returns the original receipt), the hooks replaced in
 place, one sender.
@@ -24,6 +28,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shlex
 import sys
 import time
@@ -102,10 +107,11 @@ REGISTER_WAIT = 300.0  # the longest a rate limit's Retry-After is waited out
 
 
 def register(service: str, home: Path, key: PrivateKey, *, expect: PublicKey | None = None,
-             sleep=time.sleep) -> PublicKey:
-    """Pin the service key ``service`` presents (it must be ``expect``, when given, and the
-    key already pinned, if any), register ``key`` with it, and save the configuration. A
-    rate limit (429) is waited out, up to ``REGISTER_WAIT`` at a time, ``REGISTER_TRIES`` times."""
+             expect_key_id: str | None = None, sleep=time.sleep) -> PublicKey:
+    """Pin the service key ``service`` presents (it must be ``expect``, or have the id
+    ``expect_key_id``, when given, and be the key already pinned, if any), register ``key``
+    with it, and save the configuration. A rate limit (429) is waited out, up to
+    ``REGISTER_WAIT`` at a time, ``REGISTER_TRIES`` times."""
     try:
         presented = PublicKey.from_dict(_get(f"{service}/v2/pubkey"))
     except KeyError_ as exc:
@@ -114,6 +120,8 @@ def register(service: str, home: Path, key: PrivateKey, *, expect: PublicKey | N
         raise Refused(f"the key {service} presents is a {presented.role} key, not a service key")
     if expect is not None and (presented.key_id, presented.public_bytes) != (expect.key_id, expect.public_bytes):
         raise Refused(f"{service} presents key {presented.key_id}, not the expected {expect.key_id}")
+    if expect_key_id is not None and presented.key_id != expect_key_id:
+        raise Refused(f"{service} presents key {presented.key_id}, not the expected {expect_key_id}")
     try:
         pinned = config.load(home)
     except config.ConfigError:
@@ -148,10 +156,22 @@ def register(service: str, home: Path, key: PrivateKey, *, expect: PublicKey | N
     return presented
 
 
-def install(address: str, *, out=print) -> int:
+KEY_ID = re.compile(r"sha256:[0-9a-f]{64}")
+
+
+def install(address: str, *, expect_key: str | None = None, out=print) -> int:
     service = _address(address)
     home = paths.client_home()
     # Everything that can refuse is asked before anything is written.
+    if expect_key is not None:
+        if not KEY_ID.fullmatch(expect_key):
+            raise Refused(f"{expect_key!r} is not a key id (sha256:<64 hex>)")
+        try:
+            presented_id = PublicKey.from_dict(_get(f"{service}/v2/pubkey")).key_id
+        except KeyError_ as exc:
+            raise Refused(f"the service at {service} did not present a usable public key: {exc}") from exc
+        if presented_id != expect_key:
+            raise Refused(f"{service} presents key {presented_id}, not the expected {expect_key}; nothing was installed")
     hook, send = _executable(settings.HOOK_NAME), _executable("crucible-send")
     # The hooks' command names the client's home, so a hook finds the same chain
     # whatever environment Claude Code runs it in.
@@ -175,7 +195,7 @@ def install(address: str, *, out=print) -> int:
         made = True
 
     # 2-3. the service's key, pinned, and the registration
-    presented = register(service, home, key)
+    presented = register(service, home, key, expect_key_id=expect_key)
 
     # 4. the sender, before the hooks: hooks that record into a queue nothing
     # drains would be a half-installed client
@@ -196,6 +216,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="command")
     inst = sub.add_parser("install", help="install the client: crucible install <service-address>")
     inst.add_argument("address", nargs="?", help="the service address, e.g. https://log.cruciblehub.org")
+    inst.add_argument("--expect-key", metavar="KEY_ID",
+                      help="refuse unless the service presents this key (sha256:...), e.g. the one its status host publishes")
     args = ap.parse_args(argv)
     if args.command != "install":
         ap.print_help(sys.stderr)
@@ -205,7 +227,7 @@ def main(argv: list[str] | None = None) -> int:
               "There is no default service.", file=sys.stderr)
         return 2
     try:
-        return install(args.address)
+        return install(args.address, expect_key=args.expect_key)
     except (Refused, config.ConfigError, settings.SettingsError, daemon.DaemonError, KeyError_, OSError) as exc:
         print(f"crucible: {exc}", file=sys.stderr)
         return 2

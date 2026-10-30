@@ -11,7 +11,7 @@ curl -fsSL https://log.cruciblehub.org/install.sh | sh
 or, with wget:
 
 ```sh
-wget -qO- https://log.cruciblehub.org/install.sh | sh
+wget -nv -O- https://log.cruciblehub.org/install.sh | sh
 ```
 
 That's it. Start a new Claude Code session, and from then on each session is
@@ -20,14 +20,33 @@ everything else.
 
 What the installer does:
 1. It checks that this is Linux or macOS, and that you are not running it as root.
-2. It installs [uv](https://docs.astral.sh/uv/) if you don't have it.
-3. It checks that the service's key is the one published apart from the service, at
-   https://status.cruciblehub.org/service.json. If it is not, it installs nothing.
-4. It installs the client, taking Crucible's own packages only from the service.
-5. It runs `crucible install`, which makes your key, adds Crucible's hooks to Claude
-   Code, and starts the background sender.
+2. It checks that the key the service presents is the one published apart from the
+   service, at https://status.cruciblehub.org/service.json. If it is not, it stops
+   there and changes nothing.
+3. It uses your [uv](https://docs.astral.sh/uv/) if you have version 0.8.5 or newer.
+   Otherwise it installs a private copy in `~/.local/share/crucible/uv`, which touches
+   no start-up file.
+4. It installs the client, taking Crucible's own packages only from the service, and,
+   through uv, Python 3.11 or newer if your machine has none. It tries the new client
+   in a scratch directory first, so a client you already have is replaced only by one
+   that installs.
+5. It runs `crucible install`. This makes your key and registers it with the service
+   (the log is write-once, so the registration is permanent). It pins the service's key
+   (the one checked in step 2), adds Crucible's hooks to Claude Code, and starts the
+   background sender.
+6. If `crucible` and `crucible-verify` are not on your PATH, it adds their directory
+   (`~/.local/bin`) to your shell's start-up files.
 
-It needs no `sudo`.
+It needs no `sudo`. If you reach PyPI only through a mirror, set
+`CRUCIBLE_PYPI_MIRROR=<index URL>` before `sh`.
+
+**What the key check proves.** It proves that the service and its separate status host
+agree on the service's key, and the key the client pins is that key. It does not
+protect you from a dishonest service: that service also serves the installer and the
+client. For more assurance, rebuild the client from this repository's tag for the
+release, and compare the wheels with `https://log.cruciblehub.org/client/RELEASE.json`;
+and check your sessions against the key from the status host ("Check a session",
+below).
 
 To see what it would do, without changing anything:
 
@@ -43,7 +62,8 @@ less install.sh
 sh install.sh
 ```
 
-Running it again is safe. It keeps your key, and leaves one sender running.
+Running it again updates the client to the service's current release. It keeps your
+key and your registration, and leaves one sender running.
 
 ---
 
@@ -104,7 +124,7 @@ You need all four of these:
 | Need | Check with | If it is missing |
 |---|---|---|
 | Linux or macOS | `uname -s` (prints `Linux` or `Darwin`) | Windows is not supported. |
-| Python 3.11 or newer | `python3 --version` | Install it from your system's package manager or [python.org](https://www.python.org/downloads/). |
+| Python 3.11 or newer | `uv python find '>=3.11'` | Nothing to do: Step 2 asks uv for it, and uv fetches one if there is none. |
 | [uv](https://docs.astral.sh/uv/) 0.8.5 or newer | `uv --version` | Install: `curl -LsSf https://astral.sh/uv/install.sh \| sh`. Update an older one: `uv self update`. |
 | [Claude Code](https://claude.com/claude-code) | `claude --version` | Install it, and run it once, so that `~/.claude/` exists. |
 
@@ -123,7 +143,7 @@ If no earlier copy is installed, this prints nothing and does nothing.
 This is one command; copy all of it:
 
 ```sh
-env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --index https://log.cruciblehub.org/client/simple/ --index-strategy first-index --constraints https://log.cruciblehub.org/client/constraints.txt --with-executables-from crucible-verify crucible-client==0.1.1
+env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --python '>=3.11' --index https://log.cruciblehub.org/client/simple/ --index-strategy first-index --constraints https://log.cruciblehub.org/client/constraints.txt --with-executables-from crucible-verify crucible-client==0.1.1
 ```
 
 What it does:

@@ -433,12 +433,16 @@ def _installer(svc) -> str:
     return script.replace(f"https://{svc.name}", svc.url)
 
 
-def _stranger_env(tmp_path: Path) -> tuple[dict, Path, Path]:
-    home, tools = tmp_path / "home", tmp_path / "tools"
+def _stranger_env(tmp_path: Path, *, with_uv: bool = True) -> tuple[dict, Path, Path]:
+    """A stranger's shell: a fresh HOME, the system's tools, uv (or not), and no Claude Code."""
+    home, tools, tooldir = tmp_path / "home", tmp_path / "tools", tmp_path / "path"
     home.mkdir()
+    tooldir.mkdir()
+    if with_uv:
+        (tooldir / "uv").symlink_to(UV)  # uv alone: not the rest of the directory it lives in
     env = {k: v for k, v in os.environ.items() if not k.startswith(("CRUCIBLE_", "XDG_", "VIRTUAL_ENV", "UV_"))}
     env.update(HOME=str(home), CRUCIBLE_SERVICE_MANAGER="spawn", UV_TOOL_DIR=str(tools / "envs"),
-               UV_TOOL_BIN_DIR=str(tools / "bin"), PATH=f"{Path(UV).parent}:/usr/bin:/bin",
+               UV_TOOL_BIN_DIR=str(tools / "bin"), PATH=f"{tooldir}:/usr/bin:/bin",
                UV_CACHE_DIR=os.environ.get("UV_CACHE_DIR", str(Path.home() / ".cache" / "uv")))
     return env, home, tools
 
@@ -469,30 +473,79 @@ def test_one_command_installs_the_client_and_connects_it(tmp_path, make_service,
         r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=600)
         assert r.returncode == 0, r.stdout + r.stderr
         assert f"the service's key is {service_key.key_id}" in r.stdout
-        assert "crucible: done." in r.stdout
+        assert "Claude Code was not found" in r.stdout  # no ~/.claude and no claude on PATH before the install
         _assert_installed_from(release_dir, tools)
         assert (tools / "bin" / "crucible-verify").exists()
         hooks = json.loads((home / ".claude" / "settings.json").read_text())["hooks"]
-        assert "crucible-hook" in hooks["Stop"][0]["hooks"][0]["command"]
-        # Run again: still one command, still fine, the same key kept.
+        command = hooks["Stop"][0]["hooks"][0]["command"]
+        assert "crucible-hook" in command
+        # Run again: still one command, the same key kept, and now Claude Code's directory is there.
         again = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=600)
         assert again.returncode == 0 and "kept researcher key" in again.stdout, again.stdout + again.stderr
+        assert "crucible: done. Start a new Claude Code session" in again.stdout
+        # A release that does not install leaves the installed client as it was.
+        broken = _installer(svc).replace(f"version='{json.loads((release_dir / 'RELEASE.json').read_text())['version']}'",
+                                          "version='9.9.9'", 1)
+        failed = subprocess.run(["sh"], input=broken, env=env, capture_output=True, text=True, timeout=600)
+        assert failed.returncode != 0 and "unchanged" in failed.stderr, failed.stdout + failed.stderr
+        _assert_installed_from(release_dir, tools)
+        assert (tools / "bin" / "crucible-hook").exists()
     finally:
         from crucible_client import daemon
 
         daemon.stop_spawned(home / ".local" / "state" / "crucible")
 
 
-def test_a_key_other_than_the_published_one_installs_nothing(tmp_path, make_service, release_dir, status_host):
+def test_an_old_python3_first_on_path_still_installs(tmp_path, make_service, release_dir, status_host, service_key):
+    """uv is asked for Python 3.11 or newer, so a python3 older than that, first on PATH, does not stop it."""
+    from crucible_service.api import Release
+
+    old = tmp_path / "old-python"
+    got = subprocess.run([UV, "python", "install", "3.10", "--install-dir", str(old), "--no-bin"], capture_output=True,
+                         text=True, timeout=600)
+    found = sorted(old.glob("cpython-3.10*/bin/python3.10"))
+    if got.returncode != 0 or not found:
+        pytest.skip(f"no Python 3.10 to put first on PATH: {got.stderr.strip()[:200]}")
+    published, state = status_host
+    state["key_id"] = service_key.key_id
+    svc = make_service(Release(release_dir, published=published))
+    env, home, tools = _stranger_env(tmp_path)
+    shim = tmp_path / "old-first"
+    shim.mkdir()
+    (shim / "python3").symlink_to(found[0])
+    env["PATH"] = f"{shim}:{env['PATH']}"
+    try:
+        r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=900)
+        assert r.returncode == 0, r.stdout + r.stderr
+        _assert_installed_from(release_dir, tools)
+    finally:
+        from crucible_client import daemon
+
+        daemon.stop_spawned(home / ".local" / "state" / "crucible")
+
+
+def test_a_key_other_than_the_published_one_changes_nothing(tmp_path, make_service, release_dir, status_host):
+    """The key is checked before anything is changed: here there is no uv, and uv's installer is never fetched."""
     from crucible_service.api import Release
 
     published, state = status_host
     state["key_id"] = "sha256:" + "0" * 64  # the status host names another key
     svc = make_service(Release(release_dir, published=published))
-    env, home, tools = _stranger_env(tmp_path)
+    env, home, tools = _stranger_env(tmp_path, with_uv=False)
+    asked = tmp_path / "asked.log"
+    shim = tmp_path / "shim"
+    shim.mkdir()
+    (shim / "curl").write_text(f"""#!/bin/sh
+echo "$*" >> {shlex.quote(str(asked))}
+case "$*" in *astral.sh*) exit 22 ;; esac
+exec /usr/bin/curl "$@"
+""")
+    (shim / "curl").chmod(0o755)
+    env["PATH"] = f"{shim}:{env['PATH']}"
     r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
-    assert r.returncode != 0 and "Nothing was installed" in r.stderr, r.stdout + r.stderr
-    assert not tools.exists() and not (home / ".claude").exists() and not (home / ".local").exists()
+    assert r.returncode != 0 and "Nothing was changed" in r.stderr, r.stdout + r.stderr
+    assert "astral.sh" not in asked.read_text()
+    assert list(home.iterdir()) == [] and not tools.exists()
 
 
 def test_a_dry_run_checks_and_changes_nothing(tmp_path, make_service, release_dir, status_host, service_key):
@@ -506,7 +559,8 @@ def test_a_dry_run_checks_and_changes_nothing(tmp_path, make_service, release_di
                        text=True, timeout=120)
     assert r.returncode == 0, r.stdout + r.stderr
     assert "would run:" in r.stdout and "/crucible install " in r.stdout and "dry run done" in r.stdout, r.stdout
-    assert not tools.exists() and not (home / ".claude").exists() and not (home / ".local").exists()
+    assert " tool uninstall " in r.stdout and " tool update-shell " in r.stdout and "--expect-key" in r.stdout, r.stdout
+    assert not tools.exists() and list(home.iterdir()) == []
 
 
 def test_a_release_without_an_installer_serves_none(tmp_path, make_service, release_dir):
