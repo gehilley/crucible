@@ -138,10 +138,17 @@ def squatter(tmp_path_factory):
     server.shutdown()
 
 
+def _install_block(readme: str) -> str:
+    """The README's three install commands: the shell block of its Install section that runs uv."""
+    section = readme.split("## Install", 1)[1].split("\n## ", 1)[0]
+    [block] = [b.split("```", 1)[0] for b in section.split("```sh\n")[1:] if " tool install " in b.split("```", 1)[0]]
+    return block
+
+
 def _readme_client_commands(readme: str, service_url: str, public_url: str, mirror: str) -> list[str]:
     """The README's commands that get the client, as a stranger copies them, against this test's
     service, with the README's own mirror instruction followed (UV_DEFAULT_INDEX just before `uv`)."""
-    block = readme.split("## Install", 1)[1].split("```sh\n", 1)[1].split("```", 1)[0]
+    block = _install_block(readme)
     lines = [x for x in block.splitlines() if x.strip() and "crucible install" not in x]
     assert len(lines) == 2 and " tool install " in lines[1], lines
     lines[1] = lines[1].replace(" uv tool install ", f" UV_DEFAULT_INDEX={shlex.quote(mirror)} uv tool install ", 1)
@@ -263,8 +270,7 @@ def test_a_stranger_installs_from_the_address_and_a_captured_session_reads_intac
         (shadow / package / "__init__.py").write_text(f"raise SystemExit('a {package} from PYTHONPATH ran')\n")
     # Only the tools the README installed, and the system's: never a developer's own copy on PATH.
     shadowed = {**env, "PYTHONPATH": str(shadow), "PATH": f"{bin_dir}:/usr/bin:/bin"}
-    block = readme.decode().split("## Install", 1)[1].split("```sh\n", 1)[1].split("```", 1)[0]
-    [install_line] = [x for x in block.splitlines() if "crucible install" in x]
+    [install_line] = [x for x in _install_block(readme.decode()).splitlines() if "crucible install" in x]
     try:
         r = subprocess.run(install_line.replace(f"https://{svc.name}", svc.url), shell=True, executable="/bin/sh", env=shadowed,
                            capture_output=True, text=True, timeout=120)
@@ -386,3 +392,130 @@ def test_a_release_whose_wheel_does_not_match_its_manifest_is_not_served(tmp_pat
     (tmp_path / "rel2" / "constraints.txt").write_text("cryptography==1.0\n")
     with pytest.raises(ValueError, match="does not hash"):
         Release(tmp_path / "rel2", published="https://status.test")
+
+
+# --- the one-command installer (/install.sh) --------------------------------------------------
+
+
+@pytest.fixture
+def status_host():
+    """A stand-in for the status host: serves /service.json naming whichever key id it is given."""
+    state = {"key_id": None}
+
+    class Host(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path != "/service.json" or state["key_id"] is None:
+                self.send_error(404)
+                return
+            body = json.dumps({"service": "test.service", "log_id": "log-ephemeral", "key_id": state["key_id"]},
+                              indent=2).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *_a):
+            pass
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Host)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{server.server_address[1]}", state
+    server.shutdown()
+
+
+def _installer(svc) -> str:
+    """The installer the service serves, as a stranger pipes it to sh, pointed at this test's service."""
+    status, body = _get(svc.url + "/install.sh")
+    assert status == 200
+    script = body.decode()
+    assert not re.search(r"\{(service|service_url|version|published|key_id|log_id)\}", script), "a placeholder left unfilled"
+    return script.replace(f"https://{svc.name}", svc.url)
+
+
+def _stranger_env(tmp_path: Path) -> tuple[dict, Path, Path]:
+    home, tools = tmp_path / "home", tmp_path / "tools"
+    home.mkdir()
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("CRUCIBLE_", "XDG_", "VIRTUAL_ENV", "UV_"))}
+    env.update(HOME=str(home), CRUCIBLE_SERVICE_MANAGER="spawn", UV_TOOL_DIR=str(tools / "envs"),
+               UV_TOOL_BIN_DIR=str(tools / "bin"), PATH=f"{Path(UV).parent}:/usr/bin:/bin",
+               UV_CACHE_DIR=os.environ.get("UV_CACHE_DIR", str(Path.home() / ".cache" / "uv")))
+    return env, home, tools
+
+
+def test_the_installer_is_served_filled_in_and_parses_in_both_shells(make_service, release_dir, status_host):
+    from crucible_service.api import Release
+
+    published, _state = status_host
+    svc = make_service(Release(release_dir, published=published))
+    script = _installer(svc)
+    version = json.loads((release_dir / "RELEASE.json").read_text())["version"]
+    assert f"version='{version}'" in script and f"published='{published}'" in script
+    assert script.rstrip().endswith('main "$@"')  # one function, called last: a cut-short download runs nothing
+    for shell in ("dash", "bash", "sh"):
+        if shutil.which(shell):
+            r = subprocess.run([shell, "-n"], input=script, capture_output=True, text=True, timeout=30)
+            assert r.returncode == 0, (shell, r.stderr)
+
+
+def test_one_command_installs_the_client_and_connects_it(tmp_path, make_service, release_dir, status_host, service_key):
+    from crucible_service.api import Release
+
+    published, state = status_host
+    state["key_id"] = service_key.key_id
+    svc = make_service(Release(release_dir, published=published))
+    env, home, tools = _stranger_env(tmp_path)
+    try:
+        r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=600)
+        assert r.returncode == 0, r.stdout + r.stderr
+        assert f"the service's key is {service_key.key_id}" in r.stdout
+        assert "crucible: done." in r.stdout
+        _assert_installed_from(release_dir, tools)
+        assert (tools / "bin" / "crucible-verify").exists()
+        hooks = json.loads((home / ".claude" / "settings.json").read_text())["hooks"]
+        assert "crucible-hook" in hooks["Stop"][0]["hooks"][0]["command"]
+        # Run again: still one command, still fine, the same key kept.
+        again = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=600)
+        assert again.returncode == 0 and "kept researcher key" in again.stdout, again.stdout + again.stderr
+    finally:
+        from crucible_client import daemon
+
+        daemon.stop_spawned(home / ".local" / "state" / "crucible")
+
+
+def test_a_key_other_than_the_published_one_installs_nothing(tmp_path, make_service, release_dir, status_host):
+    from crucible_service.api import Release
+
+    published, state = status_host
+    state["key_id"] = "sha256:" + "0" * 64  # the status host names another key
+    svc = make_service(Release(release_dir, published=published))
+    env, home, tools = _stranger_env(tmp_path)
+    r = subprocess.run(["sh"], input=_installer(svc), env=env, capture_output=True, text=True, timeout=120)
+    assert r.returncode != 0 and "Nothing was installed" in r.stderr, r.stdout + r.stderr
+    assert not tools.exists() and not (home / ".claude").exists() and not (home / ".local").exists()
+
+
+def test_a_dry_run_checks_and_changes_nothing(tmp_path, make_service, release_dir, status_host, service_key):
+    from crucible_service.api import Release
+
+    published, state = status_host
+    state["key_id"] = service_key.key_id
+    svc = make_service(Release(release_dir, published=published))
+    env, home, tools = _stranger_env(tmp_path)
+    r = subprocess.run(["sh"], input=_installer(svc), env={**env, "CRUCIBLE_INSTALL_DRY_RUN": "1"}, capture_output=True,
+                       text=True, timeout=120)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "would run:" in r.stdout and "/crucible install " in r.stdout and "dry run done" in r.stdout, r.stdout
+    assert not tools.exists() and not (home / ".claude").exists() and not (home / ".local").exists()
+
+
+def test_a_release_without_an_installer_serves_none(tmp_path, make_service, release_dir):
+    from crucible_service.api import Release
+
+    copy = tmp_path / "release"
+    shutil.copytree(release_dir, copy)
+    (copy / "install.sh").unlink()
+    svc = make_service(Release(copy, published="https://status.test"))
+    with pytest.raises(urllib.error.HTTPError) as err:
+        _get(svc.url + "/install.sh")
+    assert err.value.code == 404

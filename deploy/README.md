@@ -17,13 +17,29 @@ operator, so it is not yet independent of them.
 ## What you need
 
 - Linux or macOS
-- Python 3.11 or newer
-- [uv](https://docs.astral.sh/uv/) 0.8.5 or newer (`uv self update` gets it)
 - [Claude Code](https://claude.com/claude-code)
+
+The installer gets the rest: [uv](https://docs.astral.sh/uv/) 0.8.5 or newer if you
+don't have it, and, through uv, Python 3.11 or newer if you don't have that.
 
 ## Install
 
-Get the client, then run the one command:
+One command:
+
+```sh
+curl -fsSL {service_url}/install.sh | sh
+```
+
+Or, with wget: `wget -qO- {service_url}/install.sh | sh`.
+
+It checks that this service's key is the one published apart from it, at
+[{published}/service.json]({published}/service.json), and installs nothing if it is
+not. Then it runs the three commands below. To see what it would do without changing
+anything: `curl -fsSL {service_url}/install.sh | CRUCIBLE_INSTALL_DRY_RUN=1 sh`. To
+read it before running it: `curl -fsSL {service_url}/install.sh -o install.sh`, then
+`sh install.sh`.
+
+To run the three commands yourself instead (they need uv 0.8.5 or newer):
 
 ```sh
 env -u UV_CONFIG_FILE uv tool uninstall --no-config crucible-client 2>/dev/null || true

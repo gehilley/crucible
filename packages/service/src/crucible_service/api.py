@@ -10,6 +10,7 @@
     GET  /v2/sessions/{id}/export     -> that session as crucible-chain/2 JSON lines, for
                                          `crucible-verify` to re-run with the key out of band
     GET  /                            -> the README (with --release-dir)
+    GET  /install.sh                  -> the README's install as one script, for `curl ... | sh` (with --release-dir)
     GET  /client/                     -> the release's wheels, each with its sha256
     GET  /client/simple/[{project}/]  -> the same wheels as a PEP 503 index, the one the README installs from
     GET  /client/{file}               -> one of those wheels; /client/RELEASE.json, the release manifest;
@@ -137,11 +138,15 @@ class Release:
     resolved only here, never from a public index where anyone could claim it;
     each wheel pins its crucible-* dependencies to the release's version.
     ``published`` is where the service's key and log id are published apart from
-    this machine (the status host), which the README tells the stranger to use."""
+    this machine (the status host), which the README tells the stranger to use. The
+    installer (``install.sh``, when the release holds one) is the README's install as one
+    script; it checks the key this service presents against the one published there."""
 
     def __init__(self, directory: Path, *, published: str) -> None:
         self.manifest = json.loads((directory / "RELEASE.json").read_text(encoding="utf-8"))
         self.readme = (directory / "README.md").read_text(encoding="utf-8")
+        installer = directory / "install.sh"
+        self.installer = installer.read_text(encoding="utf-8") if installer.is_file() else None
         self.published = published.rstrip("/")
         self.constraints = (directory / "constraints.txt").read_bytes()
         if sha256_bytes(self.constraints) != self.manifest["client_constraints_sha256"]:
@@ -155,11 +160,12 @@ class Release:
             self.files[wheel["file"]] = (path, wheel["sha256"])
             self.projects.setdefault(package, []).append(wheel["file"])
 
-    def render(self, service: Service) -> str:
+    def render(self, service: Service, template: str | None = None) -> str:
+        """The README (or ``template``) with this service's address, key, log and release filled in."""
         log = service.log
         values = {"service": log.service, "service_url": f"https://{log.service}", "key_id": log.signer.key_id,
                   "log_id": log.log_id, "version": str(self.manifest["version"]), "published": self.published}
-        text = self.readme
+        text = self.readme if template is None else template
         for name, value in values.items():
             text = text.replace("{" + name + "}", value)
         return text
@@ -321,6 +327,12 @@ def create_app(service: Service, *, liveness: Liveness | None = None, release: R
         @app.get("/")
         def readme():
             return PlainTextResponse(release.render(service), media_type="text/plain; charset=utf-8")
+
+        @app.get("/install.sh")
+        def installer():
+            if release.installer is None:
+                raise Refusal("not_found", "this release holds no installer", 404)
+            return PlainTextResponse(release.render(service, release.installer), media_type="text/plain; charset=utf-8")
 
         @app.get("/client/")
         def client_index():

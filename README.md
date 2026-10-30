@@ -1,5 +1,54 @@
 # Crucible
 
+## Install in one command
+
+On Linux or macOS:
+
+```sh
+curl -fsSL https://log.cruciblehub.org/install.sh | sh
+```
+
+or, with wget:
+
+```sh
+wget -qO- https://log.cruciblehub.org/install.sh | sh
+```
+
+That's it. Start a new Claude Code session, and from then on each session is
+recorded. You need [Claude Code](https://claude.com/claude-code); the installer gets
+everything else.
+
+What the installer does:
+1. It checks that this is Linux or macOS, and that you are not running it as root.
+2. It installs [uv](https://docs.astral.sh/uv/) if you don't have it.
+3. It checks that the service's key is the one published apart from the service, at
+   https://status.cruciblehub.org/service.json. If it is not, it installs nothing.
+4. It installs the client, taking Crucible's own packages only from the service.
+5. It runs `crucible install`, which makes your key, adds Crucible's hooks to Claude
+   Code, and starts the background sender.
+
+It needs no `sudo`.
+
+To see what it would do, without changing anything:
+
+```sh
+curl -fsSL https://log.cruciblehub.org/install.sh | CRUCIBLE_INSTALL_DRY_RUN=1 sh
+```
+
+To read it before running it:
+
+```sh
+curl -fsSL https://log.cruciblehub.org/install.sh -o install.sh
+less install.sh
+sh install.sh
+```
+
+Running it again is safe. It keeps your key, and leaves one sender running.
+
+---
+
+## What Crucible is
+
 Crucible keeps an independent record of how a researcher works with an AI agent.
 A client on the researcher's machine records each Claude Code session as a hash
 chain. The chain covers every prompt, the model's reply at the end of each turn,
@@ -16,7 +65,7 @@ the recipe that builds each release. [SPEC.md](SPEC.md) governs the project's
 scope.
 
 **Status (phase 0).** The service runs at **https://log.cruciblehub.org**, from
-release **0.1.0**. Its key and log id are published apart from it, at
+release **0.1.1**. Its key and log id are published apart from it, at
 **https://status.cruciblehub.org**. The service is run by the project's operator,
 so it is not yet independent of them.
 
@@ -37,13 +86,16 @@ What the record holds, in this phase:
   and the session goes on without that event. In this phase nothing in the record
   marks the gap, and the session still checks as intact.
 
-The commands below are for release 0.1.0. The service's own page,
+The commands below are for release 0.1.1. The service's own page,
 https://log.cruciblehub.org/, always gives the commands for the release it serves
 now. If its commands differ from these, use its commands.
 
 ---
 
 ## Install the client, step by step
+
+The one command above does all of this. Here is the same install by hand, if you
+would rather run each step yourself.
 
 ### Step 0: Check what you need
 
@@ -66,12 +118,12 @@ env -u UV_CONFIG_FILE uv tool uninstall --no-config crucible-client 2>/dev/null 
 
 If no earlier copy is installed, this prints nothing and does nothing.
 
-### Step 2: Install the client, release 0.1.0
+### Step 2: Install the client, release 0.1.1
 
 This is one command; copy all of it:
 
 ```sh
-env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --index https://log.cruciblehub.org/client/simple/ --index-strategy first-index --constraints https://log.cruciblehub.org/client/constraints.txt --with-executables-from crucible-verify crucible-client==0.1.0
+env -u UV_CONFIG_FILE -u UV_FIND_LINKS -u UV_OVERRIDE -u UV_EXCLUDE -u UV_INDEX -u UV_INDEX_URL -u UV_EXTRA_INDEX_URL -u UV_DEFAULT_INDEX -u UV_INSECURE_HOST uv tool install --no-config --reinstall --index https://log.cruciblehub.org/client/simple/ --index-strategy first-index --constraints https://log.cruciblehub.org/client/constraints.txt --with-executables-from crucible-verify crucible-client==0.1.1
 ```
 
 What it does:
@@ -305,14 +357,16 @@ The record the service holds stays there: the log is write-once.
 - [SPEC.md](SPEC.md): what Crucible is, and the rules the build follows.
 - `packages/`: the client (`client`), the verifier (`verify`), the service
   (`service`), and the chain and key code they share (`chain`, `core`).
-- `scripts/release.py`, `deploy/Dockerfile`, `deploy/build-constraints.txt` and
-  `deploy/README.md`: the release recipe. A release is built from an annotated tag
+- `scripts/release.py`, `deploy/Dockerfile`, `deploy/build-constraints.txt`,
+  `deploy/README.md` and `deploy/install.sh`: the release recipe, with the page and the
+  installer the service serves. A release is built from an annotated tag
   of this repository; the same tag builds the same wheels, byte for byte, and
   `RELEASE.json` records each one's sha256 and the tagged commit. The service serves
   its release's `RELEASE.json` at `/client/RELEASE.json`, so for a release built
-  from a tag here you can rebuild the wheels it serves and compare. Release 0.1.0
-  was built before the service's code joined this repository; its client-side
-  package sources are this repository's tag `v0.1.0`.
+  from a tag here you can rebuild the wheels it serves and compare. Release 0.1.1
+  is the first built from a tag here (`v0.1.1`). Release 0.1.0 was built before the
+  service's code joined this repository; its client-side package sources are this
+  repository's tag `v0.1.0`.
 - `corpus/`: records with known faults, which the verifier is tested against.
 - `scripts/capture_hooks.py` and `scripts/capture_matcher_routing.py`: the tools
   that captured the real Claude Code hook envelopes the client's tests replay.

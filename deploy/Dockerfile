@@ -14,6 +14,6 @@ COPY wheels/ /release/wheels/
 RUN pip install --no-deps --require-hashes -r /release/requirements.txt \
  && pip install --no-deps /release/wheels/*.whl \
  && useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin crucible
-COPY RELEASE.json README.md constraints.txt /release/
+COPY RELEASE.json README.md install.sh constraints.txt /release/
 USER 10001
 ENTRYPOINT ["crucible-service"]

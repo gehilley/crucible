@@ -22,7 +22,8 @@
    image digest the service will run as.
 6. Write ``<out>/<tag>/RELEASE.json`` and copy the wheels beside it. The client's
    wheels, their sha256 and the constraints are what the service serves to
-   strangers (step 11).
+   strangers (step 11), with deploy/README.md and deploy/install.sh, which the
+   service renders with its own address at ``/`` and ``/install.sh``.
 """
 
 from __future__ import annotations
@@ -202,6 +203,10 @@ def release(repo: Path, tag: str, out: Path, *, image: bool, repository: str | N
         if not readme.is_file():
             raise ReleaseError("the tag holds no deploy/README.md for the service to serve")
         shutil.copy2(readme, context / "README.md")
+        installer = tree / "deploy" / "install.sh"
+        if not installer.is_file():
+            raise ReleaseError("the tag holds no deploy/install.sh for the service to serve")
+        shutil.copy2(installer, context / "install.sh")
         reqs = requirements(tree)
         (context / "requirements.txt").write_text(reqs, encoding="utf-8")
         client = requirements(tree, "crucible-client", hashes=False)
@@ -233,6 +238,7 @@ def release(repo: Path, tag: str, out: Path, *, image: bool, repository: str | N
             src = context / "wheels" / w["file"]
             shutil.copy2(src if src.exists() else Path(tmp) / w["file"], target / "wheels" / w["file"])
         shutil.copy2(context / "README.md", target / "README.md")
+        shutil.copy2(context / "install.sh", target / "install.sh")
         shutil.copy2(context / "constraints.txt", target / "constraints.txt")
         (target / "RELEASE.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return manifest
