@@ -3,13 +3,14 @@
 **An independent, verifiable record of research done with AI.**
 
 When a researcher works with an AI agent, Crucible records the work as it happens,
-and is built so that the record is held by a service that neither the researcher nor
-the AI's vendor controls. It aims to give science three things:
+and is designed so that the record is held by a service that neither the researcher
+nor the AI's vendor controls. It aims to give science three things:
 
-- **Attribution in human–AI collaboration.** The record shows, event by event,
-  whether the researcher, the model or a tool acted, so a reader can see who did
-  what. It informs credit, but does not assign it: that judgment stays with the
-  reader.
+- **Attribution in human–AI collaboration.** The record marks each event in a
+  session with who acted: the researcher, the model or a tool. So a reader can see
+  who did what within the session; what the researcher does outside it is not
+  recorded. The record informs credit, but does not assign it: that judgment stays
+  with the reader.
 - **Attestation of the work actually done.** Each session is sealed into a hash chain
   as it happens, and the service signs a timestamped receipt for each batch of it. So
   anyone can check later that the record is the one that was sealed, unaltered.
@@ -18,9 +19,19 @@ the AI's vendor controls. It aims to give science three things:
   the ones tried and abandoned. Crucible is designed so that publishing a study
   releases its whole record with it.
 
-Today Crucible records Claude Code sessions. This is its first phase: the record
-holds a digest of each piece of content, not the content itself, and the service is
-not yet independent of the person who runs it ("Status", below).
+**Today, in its first phase:**
+- It records Claude Code sessions.
+- For each prompt, reply, tool input and output, and file, the record holds only a
+  digest: a sha256 fingerprint that can confirm a copy, not a summary. A reader can
+  see who acted and when, but not yet what was said, written or computed.
+- There are no studies, private stages or publication step yet. Anyone who has a
+  session's id can download its record, and the record cannot be deleted.
+- An event the client fails to record leaves no mark. So a check shows that the
+  record is unaltered, not that it is complete.
+- The service is run by the project's operator, so it is not yet independent of
+  them.
+
+More under "Status", below.
 
 ## Install in one command
 
